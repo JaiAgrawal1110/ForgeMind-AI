@@ -9,3 +9,7 @@ logs/
 ml/models/
 .vscode/
 .DS_Store
+node_modules/
+frontend/node_modules/
+.env
+__pycache__/

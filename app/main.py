@@ -6,7 +6,7 @@
 
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import connect_db, close_db
 from app.cache import connect_cache, close_cache
@@ -42,6 +42,13 @@ app = FastAPI(
     description="Real-time machine monitoring and anomaly detection platform",
     version="1.0.0",
     lifespan=lifespan        # Attach our startup/shutdown logic
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "ws://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ------------------------------------------------------------
