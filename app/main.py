@@ -15,6 +15,10 @@ from app.logger import log
 # Import all route files (we'll build these in routes/)
 from routes import machines, telemetry, alerts, predict, websocket
 
+from ml.anomaly_model import load_model
+
+# Inside lifespan, after connect_cache():
+
 # ------------------------------------------------------------
 # Lifespan — runs setup on startup and cleanup on shutdown
 # This replaces the old @app.on_event("startup") pattern
@@ -25,6 +29,7 @@ async def lifespan(app: FastAPI):
     log.info(f"Starting {settings.APP_NAME}...")
     await connect_db()       # Open MongoDB connection
     await connect_cache()    # Open Redis connection
+    load_model()
     log.info("App is ready.")
 
     yield  # App runs here (handles requests)
