@@ -4,6 +4,8 @@
 # This writes logs with timestamps to console AND a file
 # ============================================================
 
+import os
+
 from loguru import logger
 import sys
 
@@ -20,14 +22,16 @@ def setup_logger():
                "<cyan>{name}</cyan> - <level>{message}</level>"
     )
 
+    os.environ["TZ"] = "Asia/Kolkata"
+
     # Also log to a file inside the /logs folder
     logger.add(
-        "logs/app.log",
-        level="DEBUG",                         # File gets everything including DEBUG
-        rotation="10 MB",                      # Start a new file after 10MB
-        retention="7 days",                    # Delete logs older than 7 days
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {name} - {message}"
-    )
+         "logs/app.log",
+         level="DEBUG",
+         rotation="10 MB",
+         retention="7 days",
+         format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {name} - {message}"
+)
 
     return logger
 

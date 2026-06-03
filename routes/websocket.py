@@ -21,6 +21,7 @@ import asyncio
 import json
 import random
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 router = APIRouter()
 
@@ -68,7 +69,9 @@ async def telemetry_stream(websocket: WebSocket, machine_id: str):
                 "vibration": vibration,
                 "power_consumption": power_consumption,
                 "machine_state": "running",
-                "timestamp": datetime.utcnow().isoformat()
+                 "timestamp" : datetime.now(
+                    ZoneInfo("Asia/Kolkata")
+                    ).isoformat()
             }
 
             # ------------------------------------------------

@@ -2,20 +2,20 @@ version: "3.8"
 
 services:
 
-  # FastAPI backend
   fastapi:
     build: .
     ports:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      - TZ=Asia/Kolkata
     depends_on:
       - mongodb
       - redis
     volumes:
       - .:/app
 
-  # MongoDB
   mongodb:
     image: mongo:6.0
     ports:
@@ -23,7 +23,6 @@ services:
     volumes:
       - mongo_data:/data/db
 
-  # Redis
   redis:
     image: redis:7.0-alpine
     ports:
