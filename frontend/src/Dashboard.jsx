@@ -11,7 +11,7 @@ import TelemetryChart from "./components/TelemetryChart";
 import AlertPanel from "./components/AlertPanel";
 import useWebSocket from "./hooks/useWebSocket";
 
-const API = "http://localhost:8000";
+const API = "http://15.134.229.0:8000";
 
 // Individual machine panel — card + chart together
 const MachinePanel = ({ machineId }) => {

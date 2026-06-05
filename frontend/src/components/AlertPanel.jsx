@@ -14,7 +14,7 @@ const AlertPanel = () => {
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/alerts?resolved=false");
+        const res = await axios.get("http://15.134.229.0:8000/alerts?resolved=false");
         setAlerts(res.data);
       } catch (err) {
         console.error("Failed to fetch alerts:", err);
@@ -29,7 +29,7 @@ const AlertPanel = () => {
   // Resolve an alert
   const resolveAlert = async (alertId) => {
     try {
-      await axios.put(`http://localhost:8000/alerts/${alertId}/resolve`);
+      await axios.put(`http://15.134.229.0:8000/alerts/${alertId}/resolve`);
       setAlerts(prev => prev.filter(a => a.id !== alertId));  // Remove from UI
     } catch (err) {
       console.error("Failed to resolve alert:", err);

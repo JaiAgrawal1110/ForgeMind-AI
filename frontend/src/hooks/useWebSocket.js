@@ -17,7 +17,7 @@ const useWebSocket = (machineId) => {
     if (!machineId) return;
 
     // Connect to our FastAPI WebSocket endpoint
-    const url = `ws://localhost:8000/ws/telemetry/${machineId}`;
+    const url = `ws://15.134.229.0:8000/ws/telemetry/${machineId}`;
     ws.current = new WebSocket(url);
 
     // When connection opens
