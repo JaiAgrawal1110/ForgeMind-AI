@@ -14,8 +14,8 @@ const AlertPanel = () => {
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const res = await axios.get("http://15.134.229.0:8000/alerts?resolved=false");
-        setAlerts(res.data);
+        const res = await axios.get("http://15.134.229.0:8000/alerts/?resolved=false");
+        setAlerts(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to fetch alerts:", err);
       }

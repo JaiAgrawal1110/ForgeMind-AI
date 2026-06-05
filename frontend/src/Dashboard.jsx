@@ -34,7 +34,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchMachines = async () => {
       try {
-        const res = await axios.get(`${API}/machines`);
+        const res = await axios.get(`${API}/machines/`);
         // Extract just the machine_ids for WebSocket connections
         setMachines(res.data.map(m => m.machine_id));
         setLoading(false);
