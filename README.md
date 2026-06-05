@@ -2,7 +2,7 @@
 
 A real-time AI-powered platform that monitors CNC factory machines, detects anomalies using machine learning, and alerts engineers before machines break down.
 
-**Live Demo:** [your-aws-url-here]
+**Live Demo:** [http://15.134.229.0:8000]
 
 ---
 
