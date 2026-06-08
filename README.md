@@ -220,6 +220,17 @@ Open `http://localhost:8000/docs` — API explorer.
 
 ---
 
+## Screenshots of the Frontend
+
+## Dashboard Overview
+![Dashboard](Screenshots/dashboard-overview.png)
+
+## Live Telemetry Monitoring
+![Telemetry](Screenshots/telemetry-monitoring.png)
+
+## AI Anomaly Alerts
+![Alerts](Screenshots/Alerts.png)
+
 ## Key Numbers
 
 - **95%** anomaly detection accuracy
