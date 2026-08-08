@@ -29,6 +29,7 @@ That's it. Simple idea, serious engineering underneath.
 - **Redis caching** — API responses cached, ~80% faster than hitting MongoDB directly
 - **Structured logging** — every event logged with timestamp, severity, source
 - **Full REST API** — 15+ endpoints, auto-documented at `/docs`
+- **Kubernetes-ready** — deployable on a local Kubernetes cluster (Minikube) with self-healing pods, alongside the existing Docker Compose setup
 
 ---
 
@@ -62,6 +63,7 @@ That's it. Simple idea, serious engineering underneath.
 └─────────────┘      └─────────────────┘
 
 All services containerized with Docker, deployed on AWS EC2 behind Nginx
+Also deployable on Kubernetes (Minikube) for local orchestration
 ```
 
 ---
@@ -77,7 +79,8 @@ All services containerized with Docker, deployed on AWS EC2 behind Nginx
 | **AI Model** | Isolation Forest (sklearn) | Unsupervised — no labels needed, detects unknown failure patterns |
 | **Frontend** | React + Recharts | Component-based, live chart updates |
 | **Logging** | Loguru | Structured logs with timestamps, rotation, severity levels |
-| **Container** | Docker + Docker Compose | One command to run all 8 services anywhere |
+| **Container** | Docker + Docker Compose | One command to run all services anywhere |
+| **Orchestration** | Kubernetes (Minikube) | Deployments, self-healing pods, ConfigMaps, PersistentVolumeClaims |
 | **Server** | AWS EC2 (t2.micro) | Free tier, production-grade deployment |
 | **Proxy** | Nginx | Reverse proxy, handles SSL, routes traffic to FastAPI |
 
@@ -94,6 +97,8 @@ All services containerized with Docker, deployed on AWS EC2 behind Nginx
 **Redis over no cache** — `GET /machines` is called every 5 seconds by the dashboard. Without cache, that's 12 MongoDB queries per minute per user. Redis serves it instantly from memory.
 
 **Docker over manual setup** — without Docker, deploying to AWS means manually installing Python 3.11, MongoDB 6.0, Redis 7.0, configuring paths, dealing with version conflicts. With Docker: `docker-compose up -d`. Same result on any machine.
+
+**Kubernetes over plain Docker Compose** — Compose is great for a single host, but it doesn't restart a crashed container onto a healthy node, doesn't scale replicas on demand, and has no built-in concept of desired state. Kubernetes watches the cluster continuously and reconciles reality against the desired state automatically — kill a pod, and a Deployment controller replaces it within seconds with zero manual intervention. This is the foundation the roadmap's "1000+ machines" goal would eventually need.
 
 ---
 
@@ -159,8 +164,21 @@ industrial-ai-platform/
 │           └── useWebSocket.js  # WebSocket connection hook
 ├── infra/
 │   ├── Dockerfile           # FastAPI container
-│   ├── docker-compose.yml   # All 8 services
+│   ├── docker-compose.yml   # Backend services
 │   └── nginx.conf           # Reverse proxy config
+├── k8s/
+│   ├── namespace.yaml        # Isolated namespace for all resources
+│   ├── mongodb/
+│   │   ├── mongo-pvc.yaml        # Persistent storage for MongoDB
+│   │   ├── mongo-deployment.yaml
+│   │   └── mongo-service.yaml
+│   ├── redis/
+│   │   ├── redis-deployment.yaml
+│   │   └── redis-service.yaml
+│   └── fastapi/
+│       ├── fastapi-configmap.yaml   # Env config (replaces .env in-cluster)
+│       ├── fastapi-deployment.yaml  # Includes liveness/readiness probes
+│       └── fastapi-service.yaml     # NodePort, external access
 ├── tests/
 │   ├── test_machines.py
 │   ├── test_predict.py
@@ -201,6 +219,51 @@ Open `http://localhost:8000/docs` — API explorer.
 
 ---
 
+## Running on Kubernetes (Local Deployment)
+
+The backend (FastAPI, MongoDB, Redis) also runs on Kubernetes via Minikube, as an
+alternative to Docker Compose for local orchestration.
+
+**Prerequisites:** Docker Desktop, Minikube, kubectl
+
+```bash
+# 1. Start a local Kubernetes cluster
+minikube start --driver=docker
+
+# 2. Point Docker at Minikube's internal daemon
+eval $(minikube docker-env)                        # macOS/Linux
+minikube docker-env | Invoke-Expression             # Windows PowerShell
+
+# 3. Build the FastAPI image into Minikube's Docker context
+docker build -t forgemind-fastapi:latest .
+
+# 4. Deploy everything
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/mongodb/
+kubectl apply -f k8s/redis/
+kubectl apply -f k8s/fastapi/
+
+# 5. Verify all pods are running
+kubectl get pods -n forgemind
+
+# 6. Get the API URL
+minikube service fastapi -n forgemind --url
+```
+
+Open `<returned-url>/docs` — API explorer, same as the Docker Compose setup.
+
+**What's demonstrated here:**
+- **Deployments** for each service, decoupled from the underlying pods
+- **PersistentVolumeClaim** for MongoDB so data survives pod restarts
+- **ConfigMap** for environment configuration, replacing `.env` in-cluster
+- **Liveness/readiness probes** on FastAPI so Kubernetes can detect and recover from failures
+- **Self-healing**: manually deleting the FastAPI pod (`kubectl delete pod <name> -n forgemind`) triggers automatic recreation by the Deployment controller within seconds — no manual restart, no downtime script
+
+![Kubernetes self-healing demo](Screenshots/k8s-self-healing.png)
+*Placeholder — add a screenshot of `kubectl get pods -n forgemind` before and after deleting the FastAPI pod, showing the replacement pod come up automatically.*
+
+---
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
@@ -238,7 +301,7 @@ Open `http://localhost:8000/docs` — API explorer.
 - **2 second** telemetry refresh interval
 - **~80%** API response time reduction with Redis caching
 - **15+** REST API endpoints
-- **8** Docker services in production
+- **3** Docker services in production
 - **1100** training samples (1000 normal + 100 anomalous)
 
 ---
@@ -250,6 +313,7 @@ Open `http://localhost:8000/docs` — API explorer.
 - **LSTM Autoencoder** — catches subtle time-series patterns Isolation Forest misses
 - **Prometheus + Grafana** — system health monitoring
 - **MongoDB Atlas** — managed cloud database instead of self-hosted
+- **Horizontal Pod Autoscaler** — scale FastAPI replicas automatically under load once running on a managed Kubernetes cluster (EKS)
 
 ---
 

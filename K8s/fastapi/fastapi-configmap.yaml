@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fastapi-config
+  namespace: forgemind
+data:
+  MONGO_URI: "mongodb://mongodb:27017"
+  MONGO_DB_NAME: "industrial_ai"
+  REDIS_URL: "redis://redis:6379"
+  APP_NAME: "Industrial AI Platform"
+  DEBUG: "True"
+  TZ: "Asia/Kolkata"
